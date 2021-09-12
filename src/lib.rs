@@ -1,5 +1,11 @@
 use stm32f4::stm32f401::Peripherals;
 
+pub struct HAL{
+    pers: Peripherals,
+}
+
+impl HAL {
+
 pub fn init_gpio(gpio: &str, pin: u8, mode: &str) {
     let pers = Peripherals::take().unwrap();
     let rcc = &pers.RCC;
@@ -557,8 +563,8 @@ pub fn init_gpio(gpio: &str, pin: u8, mode: &str) {
     }
 }
 
-pub fn pin_on(pers: &Peripherals, pin: u8) {
-    pers.GPIOA.odr.modify(|_, w| match pin {
+    pub fn pin_on(&mut self, pin: u8) {
+    self.pers.GPIOA.odr.modify(|_, w| match pin {
         0 => w.odr0().set_bit(),
         1 => w.odr1().set_bit(),
         2 => w.odr2().set_bit(),
@@ -579,8 +585,8 @@ pub fn pin_on(pers: &Peripherals, pin: u8) {
     });
 }
 
-pub fn pin_off(pers: &Peripherals, pin: u8) {
-    pers.GPIOA.odr.modify(|_, w| match pin {
+pub fn pin_off(&mut self, pin: u8) {
+    self.pers.GPIOA.odr.modify(|_, w| match pin {
         0 => w.odr0().clear_bit(),
         1 => w.odr1().clear_bit(),
         2 => w.odr2().clear_bit(),
@@ -601,11 +607,11 @@ pub fn pin_off(pers: &Peripherals, pin: u8) {
     });
 }
 
-pub fn delay(pers: &Peripherals, ms: u32) {
-    let tim2 = &pers.TIM2;
+pub fn delay(&mut self, ms: u32) {
+    let tim2 = &self.pers.TIM2;
 
     // Initiate timer 2.
-    pers.RCC.apb1enr.modify(|_, w| w.tim2en().set_bit());
+    self.pers.RCC.apb1enr.modify(|_, w| w.tim2en().set_bit());
 
     // OPM set to one pulse mode.
     // CEN kep disabled.
@@ -619,14 +625,15 @@ pub fn delay(pers: &Peripherals, ms: u32) {
     tim2.psc.write(|w| w.psc().bits(7999));
 
     // Set timer to go off in ms.
-    pers.TIM2.arr.write(|w| w.arr().bits(ms));
+    self.pers.TIM2.arr.write(|w| w.arr().bits(ms));
 
     // Enable counter CEN.
-    pers.TIM2.cr1.write(|w| w.cen().set_bit());
+    self.pers.TIM2.cr1.write(|w| w.cen().set_bit());
 
     // Wait until alarm goes off.
-    while !pers.TIM2.sr.read().uif().bit_is_set() {}
+    while !self.pers.TIM2.sr.read().uif().bit_is_set() {}
 
     // Clear the event flag.
-    pers.TIM2.sr.modify(|_, w| w.uif().clear_bit());
+    self.pers.TIM2.sr.modify(|_, w| w.uif().clear_bit());
+}
 }

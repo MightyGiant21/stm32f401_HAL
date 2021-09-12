@@ -556,3 +556,77 @@ pub fn init_gpio(gpio: &str, pin: u8, mode: &str) {
         _ => {}
     }
 }
+
+fn pin_on(pers: &Peripherals, pin: u8) {
+    pers.GPIOA.odr.modify(|_, w| match pin {
+        0 => w.odr0().set_bit(),
+        1 => w.odr1().set_bit(),
+        2 => w.odr2().set_bit(),
+        3 => w.odr3().set_bit(),
+        4 => w.odr4().set_bit(),
+        5 => w.odr5().set_bit(),
+        6 => w.odr6().set_bit(),
+        7 => w.odr7().set_bit(),
+        8 => w.odr8().set_bit(),
+        9 => w.odr9().set_bit(),
+        10 => w.odr10().set_bit(),
+        11 => w.odr11().set_bit(),
+        12 => w.odr12().set_bit(),
+        13 => w.odr13().set_bit(),
+        14 => w.odr14().set_bit(),
+        15 => w.odr15().set_bit(),
+        _ => w.odr0().clear_bit(),
+    });
+}
+
+fn pin_off(pers: &Peripherals, pin: u8) {
+    pers.GPIOA.odr.modify(|_, w| match pin {
+        0 => w.odr0().clear_bit(),
+        1 => w.odr1().clear_bit(),
+        2 => w.odr2().clear_bit(),
+        3 => w.odr3().clear_bit(),
+        4 => w.odr4().clear_bit(),
+        5 => w.odr5().clear_bit(),
+        6 => w.odr6().clear_bit(),
+        7 => w.odr7().clear_bit(),
+        8 => w.odr8().clear_bit(),
+        9 => w.odr9().clear_bit(),
+        10 => w.odr10().clear_bit(),
+        11 => w.odr11().clear_bit(),
+        12 => w.odr12().clear_bit(),
+        13 => w.odr13().clear_bit(),
+        14 => w.odr14().clear_bit(),
+        15 => w.odr15().clear_bit(),
+        _ => w.odr0().set_bit(),
+    });
+}
+
+fn delay(pers: &Peripherals, ms: u32) {
+    let tim2 = &pers.TIM2;
+
+    // Initiate timer 2.
+    pers.RCC.apb1enr.modify(|_, w| w.tim2en().set_bit());
+
+    // OPM set to one pulse mode.
+    // CEN kep disabled.
+    tim2.cr1.write(|w| w.opm().set_bit().cen().clear_bit());
+
+    // Config prescaler to have counter operate at 1 KHz.
+    // TIM2 clock 8Mhz (No idea if this it true).
+    // PSC = 7999.
+    // 8Mhz / (7999 + 1) = 1Khz.
+    // Counter (CNT) will increase every ms.
+    tim2.psc.write(|w| w.psc().bits(7999));
+
+    // Set timer to go off in ms.
+    pers.TIM2.arr.write(|w| w.arr().bits(ms));
+
+    // Enable counter CEN.
+    pers.TIM2.cr1.write(|w| w.cen().set_bit());
+
+    // Wait until alarm goes off.
+    while !pers.TIM2.sr.read().uif().bit_is_set() {}
+
+    // Clear the event flag.
+    pers.TIM2.sr.modify(|_, w| w.uif().clear_bit());
+}

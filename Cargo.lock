@@ -40,13 +40,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gpio_lib"
-version = "0.1.0"
-dependencies = [
- "stm32f4",
-]
-
-[[package]]
 name = "nb"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -94,6 +87,13 @@ dependencies = [
  "bare-metal",
  "cortex-m",
  "vcell",
+]
+
+[[package]]
+name = "stm32f401_HAL"
+version = "0.1.0"
+dependencies = [
+ "stm32f4",
 ]
 
 [[package]]

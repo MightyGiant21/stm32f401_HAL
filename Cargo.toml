@@ -1,5 +1,5 @@
 [package]
-name = "gpio_lib"
+name = "stm32f401_HAL"
 version = "0.1.0"
 edition = "2018"
 

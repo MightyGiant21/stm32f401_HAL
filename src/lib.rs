@@ -557,7 +557,7 @@ pub fn init_gpio(gpio: &str, pin: u8, mode: &str) {
     }
 }
 
-fn pin_on(pers: &Peripherals, pin: u8) {
+pub fn pin_on(pers: &Peripherals, pin: u8) {
     pers.GPIOA.odr.modify(|_, w| match pin {
         0 => w.odr0().set_bit(),
         1 => w.odr1().set_bit(),
@@ -579,7 +579,7 @@ fn pin_on(pers: &Peripherals, pin: u8) {
     });
 }
 
-fn pin_off(pers: &Peripherals, pin: u8) {
+pub fn pin_off(pers: &Peripherals, pin: u8) {
     pers.GPIOA.odr.modify(|_, w| match pin {
         0 => w.odr0().clear_bit(),
         1 => w.odr1().clear_bit(),
@@ -601,7 +601,7 @@ fn pin_off(pers: &Peripherals, pin: u8) {
     });
 }
 
-fn delay(pers: &Peripherals, ms: u32) {
+pub fn delay(pers: &Peripherals, ms: u32) {
     let tim2 = &pers.TIM2;
 
     // Initiate timer 2.

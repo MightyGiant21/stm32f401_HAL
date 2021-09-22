@@ -1,5 +1,7 @@
 #![no_std]
 
+mod glcd;
+
 use stm32f4::stm32f401::Peripherals;
 
 pub fn init_gpio(pers: &Peripherals, gpio: &str, pin: u8, mode: &str) {
